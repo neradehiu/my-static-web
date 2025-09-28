@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   web:
-    image: ${DOCKER_USERNAME}/my-static-web:latest
+    image: ${DOCKERHUB_USERNAME}/my-static-web:latest
     container_name: my-static-web
     ports:
       - "8080:80"
