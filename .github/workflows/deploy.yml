@@ -47,11 +47,10 @@ jobs:
       - name: Build and push Docker images
         env:
           DOCKER_BUILDKIT: 1
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
           docker-compose -f docker-compose.yml build --build-arg BUILDKIT_INLINE_CACHE=1
-          docker-compose -f docker-compose.yml push backend-learnking
+          docker-compose -f docker-compose.yml push web   # đổi từ backend-learnking -> web
 
       - name: Deploy to production server
         uses: appleboy/ssh-action@v1.0.3
