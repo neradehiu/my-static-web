@@ -45,17 +45,24 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        env:
-          DOCKER_BUILDKIT: 1
         run: |
-          docker build -t hieuihhghkj/my-static-web:latest .
-          docker push hieuihhghkj/my-static-web:latest
+          docker buildx build \
+            --platform linux/amd64 \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/my-static-web:latest \
+            --push .
 
       - name: Deploy to production server
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-static-web:latest
+            docker stop my-static-web || true
+            docker rm my-static-web || true
+            docker run -d --name my-static-web -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/my-static-web:latest
 
       - name: Cleanup
         if: always()
